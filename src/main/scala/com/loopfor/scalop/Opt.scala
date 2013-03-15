@@ -27,8 +27,12 @@ trait Opt[+A] {
 }
 
 object Opt {
-  def apply[A](lname: Option[String], sname: Option[Char], default: Option[A], fn: OptProcessor[A]): Opt[A] =
-    new Impl(lname, sname, default, fn)
+  def apply[A](lname: Option[String], sname: Option[Char], default: Option[A], fn: OptProcessor[A]): Opt[A] = {
+    if (lname.isDefined || sname.isDefined)
+      new Impl(lname, sname, default, fn)
+    else
+      throw new IllegalArgumentException("(lname, sname): at least one must be defined")
+  }
 
   private class Impl[+A](
         val lname: Option[String],
@@ -42,5 +46,4 @@ object Opt {
     def set[B >: A](value: B): Map[String,B] =
       Map[String, B]() ++ (lname map { n => (n -> value) }) ++ (sname map { n => (n.toString -> value) })
   }
-
 }

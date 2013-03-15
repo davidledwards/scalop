@@ -18,6 +18,7 @@ package com.loopfor.scalop
 import scala.annotation.tailrec
 
 trait OptParser {
+  def opts: Seq[Opt[_]]
   def ++(next: Opt[_]): OptParser
   def parse(args: Seq[String]): Map[String, Any]
 }
@@ -25,7 +26,7 @@ trait OptParser {
 object OptParser {
   def apply(opts: Seq[Opt[_]]): OptParser = new Impl(opts)
 
-  private class Impl(opts: Seq[Opt[_]]) extends OptParser {
+  private class Impl(val opts: Seq[Opt[_]]) extends OptParser {
     def ++(next: Opt[_]): OptParser = new Impl(opts :+ next)
 
     def parse(args: Seq[String]): Map[String, Any] = {

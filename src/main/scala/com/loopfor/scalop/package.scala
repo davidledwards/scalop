@@ -48,7 +48,7 @@ package object scalop {
 
   private def toShort = { (arg: String) =>
     try arg.toShort catch {
-      case e: NumberFormatException => throw new OptException(arg + ": must be a short integer", e)
+      case _: NumberFormatException => yell(s"$arg: must be a short integer")
     }
   }
 
@@ -57,7 +57,7 @@ package object scalop {
 
   private def toInt = { (arg: String) =>
     try arg.toInt catch {
-      case e: NumberFormatException => throw new OptException(arg + ": must be an integer", e)
+      case _: NumberFormatException => yell(s"$arg: must be an integer")
     }
   }
 
@@ -66,7 +66,7 @@ package object scalop {
 
   private def toLong = { (arg: String) =>
     try arg.toLong catch {
-      case e: NumberFormatException => throw new OptException(arg + ": must be a long integer", e)
+      case _: NumberFormatException => yell(s"$arg: must be a long integer")
     }
   }
 
@@ -75,7 +75,7 @@ package object scalop {
 
   private def toFloat = { (arg: String) =>
     try arg.toFloat catch {
-      case e: NumberFormatException => throw new OptException(arg + ": must be a single-precision float", e)
+      case _: NumberFormatException => yell(s"$arg: must be a single-precision float")
     }
   }
 
@@ -84,7 +84,7 @@ package object scalop {
 
   private def toDouble = { (arg: String) =>
     try arg.toDouble catch {
-      case e: NumberFormatException => throw new OptException(arg + ": must be a double-precision float", e)
+      case _: NumberFormatException => yell(s"$arg: must be a double-precision float")
     }
   }
 
@@ -99,6 +99,9 @@ package object scalop {
       case e: IllegalArgumentException => throw new OptException(arg + ": no such charset", e)
     }
   }
+
+  def yell(message: String): Nothing = throw new OptException(message)
+  def yell(message: String, cause: Throwable): Nothing = throw new OptException(message, cause)
 
   private[scalop] def longPrefix(arg: String) = arg startsWith "--"
   private[scalop] def shortPrefix(arg: String) = arg startsWith "-"

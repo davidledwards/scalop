@@ -18,7 +18,159 @@ package com.loopfor
 import java.nio.charset.Charset
 import scala.language._
 
+/**
+ * A simple option parser.
+ * 
+ * ====Overview====
+ * An option parser is an ordered collection of [[OptName option name]] and [[OptProcessor option processor]] pairs that
+ * matches on a sequence of arguments, yielding a map of option names to option values. As the parser recognizes option names
+ * in the argument sequence, it applies the corresponding processor function to obtain the option value. This process is
+ * repeated until the argument sequence is exhausted or the parser encounters an error.
+ * 
+ * An [[OptName option name]] can be expressed in both ''long'' form (a string with at least two characters) and ''short'' form
+ * (a single character). For any given sequence of arguments, ''long'' options are detected by the presence of a `--` prefix
+ * and ''short'' options with a `-` prefix. Examples include `--verbose` and `-v`, respectively.
+ * 
+ * An [[OptProcessor option processor]] is an arbitrary function whose purpose is to return a value that gets assigned to the
+ * option name. A processor may consider and absorb subsequent arguments in computing the value, such as `--timeout` that might
+ * expect the next argument to be an integer.
+ * 
+ * ====Parser Construction====
+ * The construction of a parser is best done using the DSL, which is available using the following import statement.
+ * <pre>
+ * import com.loopfor.scalop._
+ * </pre>
+ * 
+ * The following is a simple parser that demonstrates how the DSL is used to pair an option name with a corresponding
+ * processor.
+ * <pre>
+ * val parser = ("verbose", 'v') ~> set(true)
+ * </pre>
+ * 
+ * The `~>` method implicitly converts the tuple `("verbose", 'v')` into an option, recognizing both long and short forms, and
+ * associates the processor function `set(true)` with that option.
+ * 
+ * Invoking `parser` with an empty sequence yields the following map of option names to option values. The `@` option is a
+ * special name containing all non-option values trailing the last option in the argument sequence. This is discussed in more
+ * detail below.
+ * <pre>
+ * "@" -> Seq()
+ * </pre>
+ * 
+ * Invoking `parser` with the sequence `("--verbose")` or `("-v")` produces the following map. Notice that the value is
+ * associated with both ''long'' and ''short'' forms of the option name regardless of which form is specified in the argument
+ * sequence.
+ * <pre>
+ * "verbose" -> true
+ * "v" -> true
+ * "@" -> Seq()
+ * </pre>
+ * 
+ * The following is a more advanced parser that demonstrates additional features of the DSL.
+ * <pre>
+ * val parser = ("file", 'f') ~> as { (arg, _) => new File(arg) } ++
+ *              "timeout" ~> asInt ~~ 0 ++
+ *              '?' ~> enable ~~ false
+ * </pre>
+ * 
+ * The `~~` operator following a processor function associates a default value, which is assigned to the option in the absence
+ * of being specified in the argument sequence.
+ * 
+ * The `++` operator concatenates options, producing a sequence whose order of traversal also defines the order of evaluation.
+ * 
+ * Note that, in addition to being defined in both ''long'' and ''short'' form, an option may also be specified using only one
+ * form. For example, the expression `"timeout" ~> {...}` creates an option with the ''long'' name `"timeout"`, and
+ * similarly, the expression `'t' ~> {...}` creates an option with the ''short'' name `"t"`.
+ * 
+ * ====Parser Behavior====
+ * Given a sequence of arguments, such as those provided by a shell when supplying arguments to a command line program, an
+ * option parser behaves in the following manner.
+ * 
+ * First, default values for each option, if specified, are assigned to the option value map. The parser then recursively
+ * applies the following algorithm as it traverses the argument sequence.
+ * 
+ * If the next argument is equal to `"--"`, the sequence of all subsequent arguments is assigned to the special option name
+ * `"@"` and the parser terminates, returning the option value map. By convention, the `--` option is used to explicitly
+ * terminate options so that remaining arguments, which might be prefixed with `--` or `-`, are not treated as options.
+ * 
+ * If the next argument is either a ''long'' or ''short'' option name recognized by the parser, the corresponding processor
+ * function is applied to the remaining arguments, yielding a value, which is then associated with the option name, both
+ * ''long'' and ''short'', in the option value map. However, if the argument happens to be an option that is not recognized by
+ * the parser, then an [[OptException exception]] is thrown. Otherwise, the parser is recursively applied to the remaining
+ * sequence of arguments.
+ * 
+ * If the next argument is not an option, implying that it contains neither a `--` nor a `-` prefix, then the remaining
+ * argument sequence is assigned to the `"@"` option and the parser terminates.
+ * 
+ * ====Option Processors====
+ * An [[OptProcessor option processor]] is a function accepting as input:
+ *  - a sequence of arguments
+ *  - an option value map
+ * 
+ * and returning as output a tuple containing:
+ *  - a sequence of arguments
+ *  - the option value
+ *  
+ * The argument sequence provided as input are those that follow the recognized option. For example, given the following
+ * argument sequence:
+ * <pre>
+ * --verbose -F foo.out --timeout 10
+ * </pre>
+ * 
+ * If `-F` was recognized by the parser, then the sequence provided to the associated processor function would be:
+ * <pre>
+ * foo.out --timeout 10
+ * </pre>
+ * 
+ * Since a processor may expect additional arguments following the option, as is the case with `-F`, the resulting sequence
+ * should be the arguments that follow those absorbed by the processor, which in this case, would be:
+ * <pre>
+ * --timeout 10
+ * </pre>
+ * 
+ * In cases where a processor requires additional arguments, it is often necessary to perform some degree of validation or
+ * transformation, both of which may fail. Exceptions that propagate beyond the processor function are caught by the parser
+ * and converted to [[OptException]]. Additionally, the `yell()` methods are provided as a convenience for processor
+ * implementations to throw instances of [[OptException]].
+ * 
+ * ====Predefined Processors====
+ * A handful of predefined processors are made available to simplify the construction of options.
+ * 
+ * For standalone options with no additional arguments, such as `--verbose`, [[set]] can be used to explicitly assign a value.
+ * <pre>
+ * ("verbose", 'v') ~> set(true)
+ * </pre>
+ * 
+ * Since many standalone options need only convey a boolean value, [[enable]] and [[disable]] are shorthand for `set(true)` and
+ * `set(false)`, respectively.
+ * 
+ * The [[as]] method constructs a processor in cases where an option requires only a single additional argument, thereby
+ * allowing the signature of the function to be simplified. The simplification comes from removing explicit handling of the
+ * argument sequence.
+ * <pre>
+ * ("timeout", 't') ~> as { (arg, opts) => arg.toShort }
+ * </pre>
+ * 
+ * In addition, most of the primitive types have a prebuilt processor that performs the necessary conversion:
+ *  - [[asBoolean]] / [[asBooleanOption]]
+ *  - [[asByte]] / [[asByteOption]]
+ *  - [[asShort]] / [[asShortOption]]
+ *  - [[asInt]] / [[asIntOption]]
+ *  - [[asLong]] / [[asLongOption]]
+ *  - [[asFloat]] / [[asFloatOption]]
+ *  - [[asDouble]] / [[asDoubleOption]]
+ *  - [[asString]] / [[asStringOption]]
+ */
 package object scalop {
+  /**
+   * Represents a primitive argument processor.
+   * 
+   * An argument processor is a function accepting a sequence of remaining arguments (`Seq[String]`) and a map of arguments to
+   * their respective values (`Map[String, Any]`), returning a new sequence of arguments to be processed (`Seq[String]`) and
+   * the value of the argument (`A`).
+   * 
+   * @tparam A option type
+   */
   type OptProcessor[+A] = (Seq[String], Map[String, Any]) => (Seq[String], A)
 
   abstract class OptName(lname: Option[String], sname: Option[Char]) {
@@ -36,10 +188,44 @@ package object scalop {
   val enable: OptProcessor[Boolean] = set(true)
   val disable: OptProcessor[Boolean] = set(false)
 
-  def as[A](implicit fn: (String, Map[String, Any]) => A): OptProcessor[A] = { (args, results) =>
+  /**
+   * Returns a [[OptProcessor processor]] that transforms an option argument.
+   * 
+   * '''Example'''
+   * {{{
+   * val parser = ("level", 'L') ~> as { (arg, _) =>
+   *   arg.toLowerCase match {
+   *     case a @ ("on" | "off" | "debug") => a
+   *     case _ => yell(arg + ": not a level")
+   *   }
+   * }
+   * }}}
+   * 
+   * @tparam A the option type
+   * @param fn a function that transforms an option argument into an instance of `A`
+   */
+  def as[A](fn: (String, Map[String, Any]) => A): OptProcessor[A] = { (args, results) =>
     args.headOption match {
       case Some(arg) if !optPrefix(arg) => (args.tail, fn(arg, results))
-      case _ => throw new OptException("missing argument")
+      case _ => yell("missing argument")
+    }
+  }
+
+  val asBoolean: OptProcessor[Boolean] = as { (arg, _) => toBoolean(arg) }
+  val asBooleanOption: OptProcessor[Option[Boolean]] = as { (arg, _) => Some(toBoolean(arg)) }
+
+  private def toBoolean = { (arg: String) =>
+    try arg.toBoolean catch {
+      case _: NumberFormatException => yell(s"$arg: must be a boolean")
+    }
+  }
+
+  val asByte: OptProcessor[Byte] = as { (arg, _) => toByte(arg) }
+  val asByteOption: OptProcessor[Option[Byte]] = as { (arg, _) => Some(toByte(arg)) }
+
+  private def toByte = { (arg: String) =>
+    try arg.toByte catch {
+      case _: NumberFormatException => yell(s"$arg: must be a byte")
     }
   }
 
@@ -52,7 +238,24 @@ package object scalop {
     }
   }
 
+  /**
+   * Returns a [[OptProcessor processor]] that converts the option argument to an `Int`.
+   * 
+   * '''Example'''
+   * {{{
+   * val parser = ("timeout", 't') ~> asInt
+   * }}}
+   */
   val asInt: OptProcessor[Int] = as { (arg, _) => toInt(arg) }
+
+  /**
+   * Returns a [[OptProcessor processor]] that converts the option argument to a `Some[Int]`.
+   * 
+   * '''Example'''
+   * {{{
+   * val parser = ("timeout", 't') ~> asIntOption
+   * }}}
+   */
   val asIntOption: OptProcessor[Option[Int]] = as { (arg, _) => Some(toInt(arg)) }
 
   private def toInt = { (arg: String) =>

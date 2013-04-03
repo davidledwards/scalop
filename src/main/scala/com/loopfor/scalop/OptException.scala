@@ -15,6 +15,9 @@
  */
 package com.loopfor.scalop
 
+/**
+ * An exception thrown by [[OptParser]].
+ */
 class OptException(message: String, cause: Throwable) extends Exception(message, cause) {
   def this(message: String) = this(message, null)
 }

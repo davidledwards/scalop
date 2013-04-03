@@ -98,6 +98,32 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
+  test("use of `asBoolean` processor") {
+    val parser = "foo" ~> asBoolean ~~ false
+
+    val args = Seq(
+          (Seq(), false),
+          (Seq("--foo", "true"), true))
+
+    args foreach { case (a, v) =>
+      val r = parser parse a
+      assert(r("foo") === v)
+    }
+  }
+
+  test("use of `asByte` processor") {
+    val parser = "foo" ~> asByte ~~ 0
+
+    val args = Seq(
+          (Seq(), 0),
+          (Seq("--foo", "1"), 1))
+
+    args foreach { case (a, v) =>
+      val r = parser parse a
+      assert(r("foo") === v)
+    }
+  }
+
   test("use of `asShort` processor") {
     val parser = "foo" ~> asShort ~~ 0
 

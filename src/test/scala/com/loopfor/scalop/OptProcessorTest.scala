@@ -23,7 +23,7 @@ class OptProcessorTest extends FunSuite {
     val parser =
       ("verbose", 'v') ~> enable ~~ false ++
       ("level", 'l') ~> asInt ~~ 0 ++
-      ("file", 'f') ~> asStringOption ~~ None
+      ("file", 'f') ~> asSomeString ~~ None
 
   }
 
@@ -111,12 +111,38 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
+  test("use of `asSomeBoolean` processor") {
+    val parser = "foo" ~> asSomeBoolean ~~ None
+
+    val args = Seq(
+          (Seq(), None),
+          (Seq("--foo", "true"), Some(true)))
+
+    args foreach { case (a, v) =>
+      val r = parser parse a
+      assert(r("foo") === v)
+    }
+  }
+
   test("use of `asByte` processor") {
     val parser = "foo" ~> asByte ~~ 0
 
     val args = Seq(
           (Seq(), 0),
           (Seq("--foo", "1"), 1))
+
+    args foreach { case (a, v) =>
+      val r = parser parse a
+      assert(r("foo") === v)
+    }
+  }
+
+  test("use of `asSomeByte` processor") {
+    val parser = "foo" ~> asSomeByte ~~ None
+
+    val args = Seq(
+          (Seq(), None),
+          (Seq("--foo", "1"), Some(1)))
 
     args foreach { case (a, v) =>
       val r = parser parse a
@@ -137,8 +163,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asShortOption` processor") {
-    val parser = "foo" ~> asShortOption ~~ None
+  test("use of `asSomeShort` processor") {
+    val parser = "foo" ~> asSomeShort ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -163,8 +189,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asIntOption` processor") {
-    val parser = "foo" ~> asIntOption ~~ None
+  test("use of `asSomeInt` processor") {
+    val parser = "foo" ~> asSomeInt ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -189,8 +215,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asLongOption` processor") {
-    val parser = "foo" ~> asLongOption ~~ None
+  test("use of `asSomeLong` processor") {
+    val parser = "foo" ~> asSomeLong ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -215,8 +241,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asFloatOption` processor") {
-    val parser = "foo" ~> asFloatOption ~~ None
+  test("use of `asSomeFloat` processor") {
+    val parser = "foo" ~> asSomeFloat ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -241,8 +267,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asDoubleOption` processor") {
-    val parser = "foo" ~> asDoubleOption ~~ None
+  test("use of `asSomeDouble` processor") {
+    val parser = "foo" ~> asSomeDouble ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -267,8 +293,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asStringOption` processor") {
-    val parser = "foo" ~> asStringOption ~~ None
+  test("use of `asSomeString` processor") {
+    val parser = "foo" ~> asSomeString ~~ None
 
     val args = Seq(
           (Seq(), None),
@@ -293,8 +319,8 @@ class OptProcessorTest extends FunSuite {
     }
   }
 
-  test("use of `asCharsetOption` processor") {
-    val parser = "foo" ~> asCharsetOption ~~ None
+  test("use of `asSomeCharset` processor") {
+    val parser = "foo" ~> asSomeCharset ~~ None
 
     val args = Seq(
           (Seq(), None),

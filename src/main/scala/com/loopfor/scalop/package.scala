@@ -152,25 +152,16 @@ import scala.language._
  * </pre>
  * 
  * In addition, most of the primitive types have a prebuilt processor that performs the necessary conversion:
- *  - [[asBoolean]] / [[asBooleanOption]]
- *  - [[asByte]] / [[asByteOption]]
- *  - [[asShort]] / [[asShortOption]]
- *  - [[asInt]] / [[asIntOption]]
- *  - [[asLong]] / [[asLongOption]]
- *  - [[asFloat]] / [[asFloatOption]]
- *  - [[asDouble]] / [[asDoubleOption]]
- *  - [[asString]] / [[asStringOption]]
+ *  - [[asBoolean]] / [[asSomeBoolean]]
+ *  - [[asByte]] / [[asSomeByte]]
+ *  - [[asShort]] / [[asSomeShort]]
+ *  - [[asInt]] / [[asSomeInt]]
+ *  - [[asLong]] / [[asSomeLong]]
+ *  - [[asFloat]] / [[asSomeFloat]]
+ *  - [[asDouble]] / [[asSomeDouble]]
+ *  - [[asString]] / [[asSomeString]]
  */
 package object scalop {
-  /**
-   * Represents a primitive argument processor.
-   * 
-   * An argument processor is a function accepting a sequence of remaining arguments (`Seq[String]`) and a map of arguments to
-   * their respective values (`Map[String, Any]`), returning a new sequence of arguments to be processed (`Seq[String]`) and
-   * the value of the argument (`A`).
-   * 
-   * @tparam A option type
-   */
   type OptProcessor[+A] = (Seq[String], Map[String, Any]) => (Seq[String], A)
 
   abstract class OptName(lname: Option[String], sname: Option[Char]) {
@@ -183,26 +174,43 @@ package object scalop {
 
   implicit def optToParser(opt: Opt[_]): OptParser = OptParser(Seq(opt))
 
-  def set[A](fn: => A): OptProcessor[A] = { (args, results) => (args, fn) }
-
-  val enable: OptProcessor[Boolean] = set(true)
-  val disable: OptProcessor[Boolean] = set(false)
-
   /**
-   * Returns a [[OptProcessor processor]] that transforms an option argument.
+   * Returns a [[OptProcessor processor]] whose value does not depend on additional arguments.
    * 
    * '''Example'''
-   * {{{
-   * val parser = ("level", 'L') ~> as { (arg, _) =>
-   *   arg.toLowerCase match {
-   *     case a @ ("on" | "off" | "debug") => a
-   *     case _ => yell(arg + ": not a level")
-   *   }
-   * }
-   * }}}
+   * <pre>
+   * val parser = ("verbose", 'v') ~> set(true) ~~ false
+   * </pre>
    * 
    * @tparam A the option type
-   * @param fn a function that transforms an option argument into an instance of `A`
+   * @param fn a function that returns an instance of `A`
+   */
+  def set[A](fn: => A): OptProcessor[A] = { (args, results) => (args, fn) }
+
+  /**
+   * Return a [[OptProcessor processor]] whose value is `true`.
+   * 
+   * This is shorthand for `set(true)`.
+   */
+  def enable: OptProcessor[Boolean] = set(true)
+
+  /**
+   * Return a [[OptProcessor processor]] whose value is `false`.
+   * 
+   * This is shorthand for `set(false)`.
+   */
+  def disable: OptProcessor[Boolean] = set(false)
+
+  /**
+   * Returns a [[OptProcessor processor]] that transforms a single argument.
+   * 
+   * '''Example'''
+   * <pre>
+   * val parser = ("level", 'L') ~> as { (arg, opts) => arg.toInt } ~~ 0
+   * </pre>
+   * 
+   * @tparam A the option type
+   * @param fn a function that transforms an argument to an instance of `A`
    */
   def as[A](fn: (String, Map[String, Any]) => A): OptProcessor[A] = { (args, results) =>
     args.headOption match {
@@ -211,8 +219,19 @@ package object scalop {
     }
   }
 
-  val asBoolean: OptProcessor[Boolean] = as { (arg, _) => toBoolean(arg) }
-  val asBooleanOption: OptProcessor[Option[Boolean]] = as { (arg, _) => Some(toBoolean(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Boolean`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asBoolean: OptProcessor[Boolean] = as { (arg, _) => toBoolean(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Boolean]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeBoolean: OptProcessor[Option[Boolean]] = as { (arg, _) => Some(toBoolean(arg)) }
 
   private def toBoolean = { (arg: String) =>
     try arg.toBoolean catch {
@@ -220,8 +239,19 @@ package object scalop {
     }
   }
 
-  val asByte: OptProcessor[Byte] = as { (arg, _) => toByte(arg) }
-  val asByteOption: OptProcessor[Option[Byte]] = as { (arg, _) => Some(toByte(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Byte`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asByte: OptProcessor[Byte] = as { (arg, _) => toByte(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Byte]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeByte: OptProcessor[Option[Byte]] = as { (arg, _) => Some(toByte(arg)) }
 
   private def toByte = { (arg: String) =>
     try arg.toByte catch {
@@ -229,8 +259,19 @@ package object scalop {
     }
   }
 
-  val asShort: OptProcessor[Short] = as { (arg, _) => toShort(arg) }
-  val asShortOption: OptProcessor[Option[Short]] = as { (arg, _) => Some(toShort(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Short`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asShort: OptProcessor[Short] = as { (arg, _) => toShort(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Short]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeShort: OptProcessor[Option[Short]] = as { (arg, _) => Some(toShort(arg)) }
 
   private def toShort = { (arg: String) =>
     try arg.toShort catch {
@@ -239,24 +280,18 @@ package object scalop {
   }
 
   /**
-   * Returns a [[OptProcessor processor]] that converts the option argument to an `Int`.
+   * Return a [[OptProcessor processor]] that converts an argument to a `Int`.
    * 
-   * '''Example'''
-   * {{{
-   * val parser = ("timeout", 't') ~> asInt
-   * }}}
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
    */
-  val asInt: OptProcessor[Int] = as { (arg, _) => toInt(arg) }
+  def asInt: OptProcessor[Int] = as { (arg, _) => toInt(arg) }
 
   /**
-   * Returns a [[OptProcessor processor]] that converts the option argument to a `Some[Int]`.
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Int]`.
    * 
-   * '''Example'''
-   * {{{
-   * val parser = ("timeout", 't') ~> asIntOption
-   * }}}
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
    */
-  val asIntOption: OptProcessor[Option[Int]] = as { (arg, _) => Some(toInt(arg)) }
+  def asSomeInt: OptProcessor[Option[Int]] = as { (arg, _) => Some(toInt(arg)) }
 
   private def toInt = { (arg: String) =>
     try arg.toInt catch {
@@ -264,8 +299,19 @@ package object scalop {
     }
   }
 
-  val asLong: OptProcessor[Long] = as { (arg, _) => toLong(arg) }
-  val asLongOption: OptProcessor[Option[Long]] = as { (arg, _) => Some(toLong(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Long`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asLong: OptProcessor[Long] = as { (arg, _) => toLong(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Long]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeLong: OptProcessor[Option[Long]] = as { (arg, _) => Some(toLong(arg)) }
 
   private def toLong = { (arg: String) =>
     try arg.toLong catch {
@@ -273,8 +319,19 @@ package object scalop {
     }
   }
 
-  val asFloat: OptProcessor[Float] = as { (arg, _) => toFloat(arg) }
-  val asFloatOption: OptProcessor[Option[Float]] = as { (arg, _) => Some(toFloat(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Float`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asFloat: OptProcessor[Float] = as { (arg, _) => toFloat(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Float]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeFloat: OptProcessor[Option[Float]] = as { (arg, _) => Some(toFloat(arg)) }
 
   private def toFloat = { (arg: String) =>
     try arg.toFloat catch {
@@ -282,8 +339,19 @@ package object scalop {
     }
   }
 
-  val asDouble: OptProcessor[Double] = as { (arg, _) => toDouble(arg) }
-  val asDoubleOption: OptProcessor[Option[Double]] = as { (arg, _) => Some(toDouble(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Double`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asDouble: OptProcessor[Double] = as { (arg, _) => toDouble(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Double]`.
+   * 
+   * The resulting processor throws an [[OptException]] if the argument cannot be converted.
+   */
+  def asSomeDouble: OptProcessor[Option[Double]] = as { (arg, _) => Some(toDouble(arg)) }
 
   private def toDouble = { (arg: String) =>
     try arg.toDouble catch {
@@ -291,11 +359,39 @@ package object scalop {
     }
   }
 
-  val asString: OptProcessor[String] = as { (arg, _) => arg }
-  val asStringOption: OptProcessor[Option[String]] = as { (arg, _) => Some(arg) }
+  /**
+   * Return a [[OptProcessor processor]] that simply returns an argument as a `String`.
+   */
+  def asString: OptProcessor[String] = as { (arg, _) => arg }
 
-  val asCharset: OptProcessor[Charset] = as { (arg, _) => toCharset(arg) }
-  val asCharsetOption: OptProcessor[Option[Charset]] = as { (arg, _) => Some(toCharset(arg)) }
+  /**
+   * Return a [[OptProcessor processor]] that simply returns an argument as a `Some[String]`.
+   */
+  def asSomeString: OptProcessor[Option[String]] = as { (arg, _) => Some(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Charset`.
+   * 
+   * '''Example'''
+   * <pre>
+   * val parser = ("encoding", 'E') ~> asCharset ~~ Charset.forName("UTF-8")
+   * </pre>
+   * 
+   * The resulting processor throws an [[OptException]] if the argument refers to an unknown character set.
+   */
+  def asCharset: OptProcessor[Charset] = as { (arg, _) => toCharset(arg) }
+
+  /**
+   * Return a [[OptProcessor processor]] that converts an argument to a `Some[Charset]`.
+   * 
+   * '''Example'''
+   * <pre>
+   * val parser = ("encoding", 'E') ~> asSomeCharset ~~ None
+   * </pre>
+   * 
+   * The resulting processor throws an [[OptException]] if the argument refers to an unknown character set.
+   */
+  def asSomeCharset: OptProcessor[Option[Charset]] = as { (arg, _) => Some(toCharset(arg)) }
 
   private def toCharset = { (arg: String) =>
     try Charset forName arg catch {
@@ -303,7 +399,14 @@ package object scalop {
     }
   }
 
+  /**
+   * A convenience method that throws [[OptException]].
+   */
   def yell(message: String): Nothing = throw new OptException(message)
+
+  /**
+   * A convenience method that throws [[OptException]].
+   */
   def yell(message: String, cause: Throwable): Nothing = throw new OptException(message, cause)
 
   private[scalop] def longPrefix(arg: String) = arg startsWith "--"

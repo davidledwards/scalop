@@ -17,23 +17,63 @@ package com.loopfor.scalop
 
 import scala.annotation.tailrec
 
+/**
+ * An option parser defined with a sequence of [[Opt option]] definitions.
+ */
 trait OptParser {
+  /**
+   * Returns the options associated with this parser.
+   * 
+   * @return the options associated with this parser
+   */
   def opts: Seq[Opt[_]]
+
+  /**
+   * Returns a new parser by concatenating the given option.
+   * 
+   * @param next the option to concatenate
+   * @return a new parser by concatenating `next` to [[opts]]
+   */
   def ++(next: Opt[_]): OptParser
-  def parse(args: Seq[String]): Map[String, Any]
+
+  /**
+   * Parses the given argument sequence and returns a map of option names to option values.
+   * 
+   * '''Example'''
+   * {{{
+   * val parser = ("timeout", 't') ~> asInt ~~ 0
+   * val opts = parser parse Seq("--timeout", "10", "foo", "bar")
+   * 
+   * // can fetch value using either long or short form
+   * val timeout = opts[Int]("timeout")
+   * val timeout = opts[Int]("t")
+   * 
+   * // get arguments following last option: ("foo", "bar")
+   * val rest = opts.args
+   * }}}
+   * 
+   * @param args the argument sequence
+   * @return the parse result containing the option value map
+   */
+  def parse(args: Seq[String]): OptResult
 }
 
+/**
+ * Constructs [[OptParser]] values.
+ * 
+ * In normal circumstances, parser instances are created implicitly using [[scalop DSL syntax]].
+ */
 object OptParser {
   def apply(opts: Seq[Opt[_]]): OptParser = new Impl(opts)
 
   private class Impl(val opts: Seq[Opt[_]]) extends OptParser {
     def ++(next: Opt[_]): OptParser = new Impl(opts :+ next)
 
-    def parse(args: Seq[String]): Map[String, Any] = {
+    def parse(args: Seq[String]): OptResult = {
       val results = (Map[String, Any]() /: opts) { case (r, opt) =>
         opt.default map { opt set _ } map { r ++ _ } getOrElse r
       } + ("@" -> Seq[String]())
-      parse(args, results)
+      OptResult(parse(args, results))
     }
 
     @tailrec private def parse(args: Seq[String], results: Map[String, Any]): Map[String, Any] = {
@@ -43,7 +83,7 @@ object OptParser {
         val rest = args.tail
 
         def process(opt: Opt[_]) = {
-          val (next, value) = try opt.process(rest, results) catch {
+          val (next, value) = try opt.processor(rest, results) catch {
             case e: OptException => throw new OptException(arg + ": " + e.getMessage, e.getCause)
             case e: Exception => throw new OptException(arg + ": error parsing option", e)
           }

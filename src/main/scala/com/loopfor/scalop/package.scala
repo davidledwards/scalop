@@ -37,15 +37,15 @@ import scala.language._
  * 
  * ====Parser Construction====
  * The construction of a parser is best done using the DSL, which is available using the following import statement.
- * <pre>
+ * {{{
  * import com.loopfor.scalop._
- * </pre>
+ * }}}
  * 
  * The following is a simple parser that demonstrates how the DSL is used to pair an option name with a corresponding
  * processor.
- * <pre>
+ * {{{
  * val parser = ("verbose", 'v') ~> set(true)
- * </pre>
+ * }}}
  * 
  * The `~>` method implicitly converts the tuple `("verbose", 'v')` into an option, recognizing both long and short forms, and
  * associates the processor function `set(true)` with that option.
@@ -53,24 +53,25 @@ import scala.language._
  * Invoking `parser` with an empty sequence yields the following map of option names to option values. The `@` option is a
  * special name containing all non-option values trailing the last option in the argument sequence. This is discussed in more
  * detail below.
- * <pre>
+ * {{{
  * "@" -> Seq()
- * </pre>
+ * }}}
  * 
  * Invoking `parser` with the sequence `("--verbose")` or `("-v")` produces the following map. Notice that the value is
  * associated with both ''long'' and ''short'' forms of the option name regardless of which form is specified in the argument
  * sequence.
- * <pre>
+ * {{{
  * "verbose" -> true
  * "v" -> true
  * "@" -> Seq()
- * </pre>
+ * }}}
  * 
  * The following is a more advanced parser that demonstrates additional features of the DSL.
  * <pre>
- * val parser = ("file", 'f') ~> as { (arg, _) => new File(arg) } ++
- *              "timeout" ~> asInt ~~ 0 ++
- *              '?' ~> enable ~~ false
+ * val parser =
+ *   ("file", 'f') ~> as { (arg, _) => new File(arg) } ++
+ *   "timeout" ~> asInt ~~ 0 ++
+ *   '?' ~> enable ~~ false
  * </pre>
  * 
  * The `~~` operator following a processor function associates a default value, which is assigned to the option in the absence
@@ -137,9 +138,9 @@ import scala.language._
  * A handful of predefined processors are made available to simplify the construction of options.
  * 
  * For standalone options with no additional arguments, such as `--verbose`, [[set]] can be used to explicitly assign a value.
- * <pre>
+ * {{{
  * ("verbose", 'v') ~> set(true)
- * </pre>
+ * }}}
  * 
  * Since many standalone options need only convey a boolean value, [[enable]] and [[disable]] are shorthand for `set(true)` and
  * `set(false)`, respectively.
@@ -147,9 +148,9 @@ import scala.language._
  * The [[as]] method constructs a processor in cases where an option requires only a single additional argument, thereby
  * allowing the signature of the function to be simplified. The simplification comes from removing explicit handling of the
  * argument sequence.
- * <pre>
+ * {{{
  * ("timeout", 't') ~> as { (arg, opts) => arg.toShort }
- * </pre>
+ * }}}
  * 
  * In addition, most of the primitive types have a prebuilt processor that performs the necessary conversion:
  *  - [[asBoolean]] / [[asSomeBoolean]]
@@ -178,9 +179,9 @@ package object scalop {
    * Returns a [[OptProcessor processor]] whose value does not depend on additional arguments.
    * 
    * '''Example'''
-   * <pre>
+   * {{{
    * val parser = ("verbose", 'v') ~> set(true) ~~ false
-   * </pre>
+   * }}}
    * 
    * @tparam A the option type
    * @param fn a function that returns an instance of `A`
@@ -205,9 +206,9 @@ package object scalop {
    * Returns a [[OptProcessor processor]] that transforms a single argument.
    * 
    * '''Example'''
-   * <pre>
+   * {{{
    * val parser = ("level", 'L') ~> as { (arg, opts) => arg.toInt } ~~ 0
-   * </pre>
+   * }}}
    * 
    * @tparam A the option type
    * @param fn a function that transforms an argument to an instance of `A`
@@ -385,9 +386,9 @@ package object scalop {
    * Return a [[OptProcessor processor]] that converts an argument to a `Some[Charset]`.
    * 
    * '''Example'''
-   * <pre>
+   * {{{
    * val parser = ("encoding", 'E') ~> asSomeCharset ~~ None
-   * </pre>
+   * }}}
    * 
    * The resulting processor throws an [[OptException]] if the argument refers to an unknown character set.
    */

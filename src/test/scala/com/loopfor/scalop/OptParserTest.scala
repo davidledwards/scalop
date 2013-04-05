@@ -74,16 +74,16 @@ class OptParserTest extends FunSuite {
       opts foreach { case (o, v) =>
         (o.lname, o.sname) match {
           case (Some(l), Some(s)) =>
-            assert(r(l) === v)
-            assert(r(s.toString) === v)
+            assert(r.opts(l) === v)
+            assert(r.opts(s.toString) === v)
           case (Some(l), None) =>
-            assert(r(l) === v)
+            assert(r.opts(l) === v)
           case (None, Some(s)) =>
-            assert(r(s.toString) === v)
+            assert(r.opts(s.toString) === v)
           case (None, None) => fail()
         }
       }
-      assert(r("@") === etc)
+      assert(r.args === etc)
     }
   }
 
@@ -121,7 +121,7 @@ class OptParserTest extends FunSuite {
     val parser = OptParser(opts)
     args foreach { case (a, etc) =>
       val r = parser parse a
-      assert(r("@") === etc)
+      assert(r.args === etc)
     }
   }
 }

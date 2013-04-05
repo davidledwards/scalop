@@ -42,7 +42,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -55,7 +55,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -68,7 +68,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -81,7 +81,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -94,7 +94,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -107,7 +107,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -120,7 +120,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -133,7 +133,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -146,7 +146,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -159,7 +159,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -172,7 +172,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -185,7 +185,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -198,7 +198,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -211,7 +211,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -224,7 +224,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -237,7 +237,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -250,7 +250,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -263,7 +263,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -276,7 +276,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -289,7 +289,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -302,7 +302,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -315,7 +315,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 
@@ -328,7 +328,7 @@ class OptProcessorTest extends FunSuite {
 
     args foreach { case (a, v) =>
       val r = parser parse a
-      assert(r("foo") === v)
+      assert(r.opts("foo") === v)
     }
   }
 }

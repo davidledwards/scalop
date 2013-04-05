@@ -17,15 +17,59 @@ package com.loopfor.scalop
 
 import scala.language._
 
+/**
+ * An option definition.
+ * 
+ * @tparam A the value type
+ */
 trait Opt[+A] {
+  /**
+   * The optional ''long'' name.
+   * 
+   * If `None`, then [[sname]] will not be `None`.
+   */
   def lname: Option[String]
+
+  /**
+   * The optional ''short'' name.
+   * 
+   * If `None`, then [[lname]] will not be `None`.
+   */
   def sname: Option[Char]
+
+  /**
+   * An optional default value.
+   */
   def default: Option[A]
-  def process(args: Seq[String], results: Map[String, Any]): (Seq[String], A)
+
+  /**
+   * The option processor.
+   */
+  def processor: OptProcessor[A]
+
+  /**
+   * Returns a new option with a default value.
+   * 
+   * @param default the default value
+   * @return a new option with `default` as the default value
+   */
   def ~~[B >: A](default: B): Opt[B]
+
+  /**
+   * Returns a map in which the given value is associated with both [[lname long]] and [[sname short]] names, if applicable.
+   * 
+   * @tparam B the value type
+   * @param value the value
+   * @return a map in which `value` is associated with both [[lname long]] and [[sname short]] names
+   */
   def set[B >: A](value: B): Map[String, B]
 }
 
+/**
+ * Constructs [[Opt]] values.
+ * 
+ * In normal circumstances, option definitions are implicitly created using [[scalop DSL syntax]].
+ */
 object Opt {
   def apply[A](lname: Option[String], sname: Option[Char], default: Option[A], fn: OptProcessor[A]): Opt[A] = {
     if (lname.isDefined || sname.isDefined)
@@ -38,10 +82,8 @@ object Opt {
         val lname: Option[String],
         val sname: Option[Char],
         val default: Option[A],
-        fn: OptProcessor[A]) extends Opt[A] {
-    def process(args: Seq[String], results: Map[String, Any]): (Seq[String], A) = fn(args, results)
-
-    def ~~[B >: A](default: B): Opt[B] = new Impl(lname, sname, Some(default), fn)
+        val processor: OptProcessor[A]) extends Opt[A] {
+    def ~~[B >: A](default: B): Opt[B] = new Impl(lname, sname, Some(default), processor)
 
     def set[B >: A](value: B): Map[String,B] =
       Map[String, B]() ++ (lname map { n => (n -> value) }) ++ (sname map { n => (n.toString -> value) })

@@ -29,8 +29,8 @@ matches on a sequence of arguments, yielding a map of option names to option val
 the argument sequence, it applies the corresponding processor function to obtain the option value. This process is repeated
 until the argument sequence is exhausted or the parser encounters an error.
 
-An option name can be expressed in both ''long'' form (a string with at least two characters) and ''short'' form (a single
-character). For any given sequence of arguments, ''long'' options are detected by the presence of a `--` prefix and ''short''
+An option name can be expressed in both *long* form (a string with at least two characters) and *short* form (a single
+character). For any given sequence of arguments, *long* options are detected by the presence of a `--` prefix and *short*
 options with a `-` prefix. Examples include `--verbose` and `-v`, respectively.
 
 An option processor is an arbitrary function whose purpose is to return a value that gets assigned to the option name. A
@@ -79,9 +79,9 @@ of being specified in the argument sequence.
 
 The `++` operator concatenates options, producing a sequence whose order of traversal also defines the order of evaluation.
 
-Note that, in addition to being defined in both ''long'' and ''short'' form, an option may also be specified using only one
-form. For example, the expression `"timeout" ~> {...}` creates an option with the ''long'' name `"timeout"`, and
-similarly, the expression `'t' ~> {...}` creates an option with the ''short'' name `"t"`.
+Note that, in addition to being defined in both *long* and *short* form, an option may also be specified using only one
+form. For example, the expression `"timeout" ~> {...}` creates an option with the *long* name `"timeout"`, and
+similarly, the expression `'t' ~> {...}` creates an option with the *short* name `"t"`.
 
 ### Parser Behavior
 Given a sequence of arguments, such as those provided by a shell when supplying arguments to a command line program, an option
@@ -94,9 +94,9 @@ If the next argument is equal to `"--"`, the sequence of all subsequent argument
 `"@"` and the parser terminates, returning the option value map. By convention, the `--` option is used to explicitly
 terminate options so that remaining arguments, which might be prefixed with `--` or `-`, are not treated as options.
 
-If the next argument is either a ''long'' or ''short'' option name recognized by the parser, the corresponding processor
+If the next argument is either a *long* or *short* option name recognized by the parser, the corresponding processor
 function is applied to the remaining arguments, yielding a value, which is then associated with the option name, both
-''long'' and ''short'', in the option value map. However, if the argument happens to be an option that is not recognized by
+*long* and *short*, in the option value map. However, if the argument happens to be an option that is not recognized by
 the parser, then an `OptException` is thrown. Otherwise, the parser is recursively applied to the remaining sequence of
 arguments.
 

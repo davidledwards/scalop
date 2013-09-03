@@ -1,3 +1,5 @@
+import ReleaseKeys._
+
 name := "scalop"
 
 organization := "com.loopfor.scalop"
@@ -25,8 +27,14 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
-// Merges release settings with build.
+// Merges release settings.
 releaseSettings
+
+tagName <<= version map { "release-" + _ }
+
+tagComment <<= version map { "releasing " + _ }
+
+commitMessage <<= version map { "setting version to " + _ }
 
 publishMavenStyle := true
 

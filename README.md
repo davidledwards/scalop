@@ -3,7 +3,7 @@ Yet another option parser for Scala, but this one is incredibly simple and rich 
 
 ## Build Instructions
 In order to build the corresponding artifacts, you must install [Java 1.6](http://www.java.com/en/download/index.jsp) or
-higher and [SBT 0.12.4](http://www.scala-sbt.org/0.12.4/docs/Getting-Started/Setup.html).
+higher and [sbt 0.12.4](http://www.scala-sbt.org/0.12.4/docs/Getting-Started/Setup.html).
 
 In the root directory `scalop`, the following command will build the project and install in your local Ivy repository:
 ```
@@ -16,7 +16,9 @@ sbt doc
 ```
 
 ## Including as Dependency
-### SBT
+`scalop` is built against Scala 2.10.2.
+
+### sbt
 ```
 libraryDependencies += "com.loopfor.scalop" %% "scalop" % "1.1"
 ```

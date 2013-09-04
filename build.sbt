@@ -4,8 +4,6 @@ name := "scalop"
 
 organization := "com.loopfor.scalop"
 
-version := "1.1-SNAPSHOT"
-
 description := "Scala option parser"
 
 homepage := Some(url("https://github.com/davidledwards/scalop"))

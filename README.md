@@ -15,15 +15,15 @@ API documentation is automatically generated and deployed with `publish-local`, 
 sbt doc
 ```
 
-## Including as Dependency
+### Including as Dependency
 `scalop` is built against Scala 2.10.2.
 
-### sbt
+#### sbt
 ```
 libraryDependencies += "com.loopfor.scalop" %% "scalop" % "1.1"
 ```
 
-### Maven
+#### Maven
 ```
 <dependency>
    <groupId>com.loopfor.scalop</groupId>

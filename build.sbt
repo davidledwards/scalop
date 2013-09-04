@@ -20,7 +20,17 @@ scmInfo := Some(ScmInfo(
 
 scalaVersion := "2.10.2"
 
-scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature")
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-unchecked",
+  "-feature",
+  "-encoding", "UTF-8"
+)
+
+javacOptions ++= Seq(
+  "-source", "1.6",
+  "-target", "1.6"
+)
 
 // Test dependencies.
 libraryDependencies ++= Seq(

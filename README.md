@@ -3,23 +3,32 @@ Yet another option parser for Scala, but this one is incredibly simple and rich 
 
 ## Build Instructions
 In order to build the corresponding artifacts, you must install [Java 1.6](http://www.java.com/en/download/index.jsp) or
-higher and [Maven 3.0](http://maven.apache.org/download.cgi) or higher.
+higher and [sbt 0.12.4](http://www.scala-sbt.org/0.12.4/docs/Getting-Started/Setup.html).
 
-In the root directory `scalop`, the following command will build the project and install in your local Maven repository:
+In the root directory `scalop`, the following command will build the project and install in your local Ivy repository:
 ```
-mvn install
-```
-
-API documentation can also be generated via:
-```
-mvn scala:doc
+sbt publish-local
 ```
 
-## Including as Maven Dependency
+API documentation is automatically generated and deployed with `publish-local`, but may also be generated via:
+```
+sbt doc
+```
+
+### Including as Dependency
+`scalop` is built against Scala 2.10.2.
+
+#### sbt
+```
+libraryDependencies += "com.loopfor.scalop" %% "scalop" % "1.1"
+```
+
+#### Maven
 ```
 <dependency>
    <groupId>com.loopfor.scalop</groupId>
-   <artifactId>scalop</artifactId>
+   <artifactId>scalop_2.10</artifactId>
+   <version>1.1</version>
 </dependency>
 ```
 

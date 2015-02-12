@@ -2,7 +2,7 @@ name := "scalop"
 
 organization := "com.loopfor.scalop"
 
-version := "1.1"
+version := "1.2-SNAPSHOT"
 
 description := "Scala option parser"
 
@@ -16,7 +16,7 @@ scmInfo := Some(ScmInfo(
   Some("scm:git:https://github.com/davidledwards/scalop.git")
 ))
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.5"
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -32,7 +32,7 @@ javacOptions ++= Seq(
 
 // Test dependencies.
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
 
 publishMavenStyle := true

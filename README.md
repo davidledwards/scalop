@@ -3,32 +3,32 @@ Yet another option parser for Scala, but this one is incredibly simple and rich 
 
 ## Build Instructions
 In order to build the corresponding artifacts, you must install [Java 1.6](http://www.java.com/en/download/index.jsp) or
-higher and [sbt 0.12.4](http://www.scala-sbt.org/0.12.4/docs/Getting-Started/Setup.html).
+higher and [sbt 0.13.7](http://www.scala-sbt.org/0.13/tutorial/Setup.html).
 
 In the root directory `scalop`, the following command will build the project and install in your local Ivy repository:
 ```
-sbt publish-local
+sbt publishLocal
 ```
 
-API documentation is automatically generated and deployed with `publish-local`, but may also be generated via:
+API documentation is automatically generated and deployed with `publishLocal`, but may also be generated via:
 ```
 sbt doc
 ```
 
 ### Including as Dependency
-`scalop` is built against Scala 2.10.2.
+`scalop` is built against Scala 2.11.5.
 
 #### sbt
 ```
-libraryDependencies += "com.loopfor.scalop" %% "scalop" % "1.1"
+libraryDependencies += "com.loopfor.scalop" %% "scalop" % "1.2"
 ```
 
 #### Maven
 ```
 <dependency>
    <groupId>com.loopfor.scalop</groupId>
-   <artifactId>scalop_2.10</artifactId>
-   <version>1.1</version>
+   <artifactId>scalop_2.11</artifactId>
+   <version>1.2</version>
 </dependency>
 ```
 
@@ -172,7 +172,7 @@ In addition, most of the primitive types have a prebuilt processor that performs
 - `asString` / `asSomeString`
 
 ## License
-Copyright 2013 David Edwards
+Copyright 2015 David Edwards
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

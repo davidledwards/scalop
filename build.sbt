@@ -2,7 +2,7 @@ name := "scalop"
 
 organization := "com.loopfor.scalop"
 
-version := "1.2-SNAPSHOT"
+version := "1.2"
 
 description := "Scala option parser"
 

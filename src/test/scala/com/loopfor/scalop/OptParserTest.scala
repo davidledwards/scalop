@@ -18,49 +18,37 @@ package com.loopfor.scalop
 import org.scalatest.FunSuite
 
 class OptParserTest extends FunSuite {
-  test("explicit construction of OptParser") {
-    val opts = Seq(
-          ("foo", 'f') ~> set(0),
-          "bar" ~> set(1),
-          '?' ~> set(2))
+  test("explicit construction of option parser") {
+    val opts =
+      ("foo", 'f') ~> just(0) ::
+      "bar" ~> just(1) ::
+      '?' ~> just(2) :: Nil
 
     val parser = OptParser(opts)
-    parser.opts foreach { opt =>
+    for (opt <- parser.opts) {
       val o = opts find { o => o.lname == opt.lname && o.sname == opt.sname }
       assert(o.isDefined)
     }
   }
 
-  test("construction of OptParser by appending") {
-    val opts = Seq(
-          ("foo", 'f') ~> set(0),
-          "bar" ~> set(1),
-          '?' ~> set(2))
+  test("implicit construction of option parser") {
+    val opts =
+      ("foo", 'f') ~> just(0) ::
+      "bar" ~> just(1) ::
+      '?' ~> just(2) :: Nil
 
-    val parser = (OptParser(Seq()) /: opts) { case (p, o) => p ++ o }
-    parser.opts foreach { opt =>
+    val parser: OptParser = opts
+    for (opt <- parser.opts) {
       val o = opts find { o => o.lname == opt.lname && o.sname == opt.sname }
       assert(o.isDefined)
     }
-  }
-
-  test("implicit construction of OptParser") {
-    val parser =
-      ("foo", 'f') ~> set(0) ++
-      "bar" ~> set(1) ++
-      '?' ~> set(2)
-
-    assert(parser.opts.size === 3)
-    assert((parser.opts find { o => o.lname == Some("foo") && o.sname == Some('f') }).isDefined)
-    assert((parser.opts find { _.lname == Some("bar") }).isDefined)
-    assert((parser.opts find { _.sname == Some('f') }).isDefined)
   }
 
   test("parsing recognized options") {
-    val opts = Seq(
-          (("foo", 'f') ~> set(0), 0),
-          ("bar" ~> set(1), 1),
-          ('?' ~> set(2), 2))
+    val tests = Seq(
+          (("foo", 'f') ~> just(0), 0),
+          ("bar" ~> just(1), 1),
+          ('?' ~> just(2), 2))
 
     val args = Seq(
           (Seq("--foo", "--bar", "-?"), Seq()),
@@ -68,18 +56,18 @@ class OptParserTest extends FunSuite {
           (Seq("--foo", "--bar", "-?", "hello"), Seq("hello")),
           (Seq("-f", "--bar", "-?", "there", "world"), Seq("there", "world")))
 
-    val parser = OptParser(opts map { case (o, _) => o })
-    args foreach { case (a, etc) =>
-      val r = parser parse a
-      opts foreach { case (o, v) =>
+    val opts = tests map { _._1 }
+    for ((a, etc) <- args) {
+      val r = opts <~ a
+      for ((o, v) <- tests) {
         (o.lname, o.sname) match {
           case (Some(l), Some(s)) =>
-            assert(r.opts(l) === v)
-            assert(r.opts(s.toString) === v)
+            assert(r.optv(l) === v)
+            assert(r.optv(s.toString) === v)
           case (Some(l), None) =>
-            assert(r.opts(l) === v)
+            assert(r.optv(l) === v)
           case (None, Some(s)) =>
-            assert(r.opts(s.toString) === v)
+            assert(r.optv(s.toString) === v)
           case (None, None) => fail()
         }
       }
@@ -88,10 +76,10 @@ class OptParserTest extends FunSuite {
   }
 
   test("parsing unrecognized options") {
-    val opts = Seq(
-          ("foo", 'f') ~> set(0),
-          "bar" ~> set(1),
-          '?' ~> set(2))
+    val opts =
+      ("foo", 'f') ~> just(0) ::
+      "bar" ~> just(1) ::
+      '?' ~> just(2) :: Nil
 
     val args = Seq(
           Seq("--huh", "--foo", "--bar", "-?"),
@@ -99,28 +87,24 @@ class OptParserTest extends FunSuite {
           Seq("--foo", "--bar", "--huh", "-?"),
           Seq("--foo", "--bar", "-?", "--huh"))
 
-    val parser = OptParser(opts)
-    args foreach { a =>
-      intercept[OptException] {
-        parser parse a
-      }
+    for (a <- args) {
+      intercept[OptException] { opts <~ a }
     }
   }
 
   test("explicit use of option termination `--` argument") {
-    val opts = Seq(
-          ("foo", 'f') ~> set(0),
-          "bar" ~> set(1),
-          '?' ~> set(2))
+    val opts =
+      ("foo", 'f') ~> just(0) ::
+      "bar" ~> just(1) ::
+      '?' ~> just(2) :: Nil
 
     val args = Seq(
           (Seq("--foo", "--"), Seq()),
           (Seq("--foo", "--", "--bar"), Seq("--bar")),
           (Seq("--foo", "--", "hello", "world"), Seq("hello", "world")))
 
-    val parser = OptParser(opts)
-    args foreach { case (a, etc) =>
-      val r = parser parse a
+    for ((a, etc) <- args) {
+      val r = opts <~ a
       assert(r.args === etc)
     }
   }

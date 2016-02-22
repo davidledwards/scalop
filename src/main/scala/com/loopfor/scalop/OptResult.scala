@@ -20,6 +20,16 @@ package com.loopfor.scalop
  */
 trait OptResult {
   /**
+   * Returns the option value map.
+   * 
+   * Note that non-option arguments are associated with the option name `"@"`, which is guaranteed to be present in the map
+   * even if the argument sequence was empty.
+   * 
+   * @return the option value map
+   */
+  def optv: Map[String, Any]
+
+  /**
    * Returns the value of an option.
    * 
    * @tparam A the expected value type
@@ -48,29 +58,19 @@ trait OptResult {
    * @return a sequence of all non-option arguments
    */
   def args: Seq[String]
+}
 
-  /**
-   * Returns the raw option value map.
-   * 
-   * Note that non-option arguments are associated with the option name `"@"`, which is guaranteed to be present in the map
-   * even if empty.
-   * 
-   * @return the raw option value map
-   */
-  def opts: Map[String, Any]
+private class BasicOptResult(val optv: Map[String, Any]) extends OptResult {
+  def apply[A](name: String): A = optv(name).asInstanceOf[A]
+
+  def get[A](name: String): Option[A] = optv.get(name) map { _.asInstanceOf[A] }
+
+  def args: Seq[String] = optv("@").asInstanceOf[Seq[String]]
 }
 
 /**
  * Constructs [[OptResult]] values.
  */
 object OptResult {
-  def apply(opts: Map[String, Any]): OptResult = new Impl(opts)
-
-  private class Impl(val opts: Map[String, Any]) extends OptResult {
-    def apply[A](name: String): A = opts(name).asInstanceOf[A]
-
-    def get[A](name: String): Option[A] = opts.get(name) map { _.asInstanceOf[A] }
-
-    def args: Seq[String] = opts("@").asInstanceOf[Seq[String]]
-  }
+  def apply(optv: Map[String, Any]): OptResult = new BasicOptResult(optv)
 }

@@ -20,72 +20,109 @@ import scala.language._
 /**
  * An option definition.
  * 
+ * An instance of this class is typically constructed using the DSL when binding a processor function to an [[OptName]]
+ * using the [[OptName#~> ~>]] and [[OptName#~>+ ~>+]] methods.
+ * 
  * @tparam A the value type
  */
 trait Opt[+A] {
   /**
-   * The optional ''long'' name.
+   * Returns the optional ''long'' name.
    * 
-   * If `None`, then [[sname]] will not be `None`.
+   * @return a `Some` containing the long name or `None` if not specified
    */
   def lname: Option[String]
 
   /**
-   * The optional ''short'' name.
+   * Returns the optional ''short'' name.
    * 
-   * If `None`, then [[lname]] will not be `None`.
+   * @return a `Some` containing the short name or `None` if not specified
    */
   def sname: Option[Char]
 
   /**
-   * An optional default value.
+   * Returns the optional default value.
+   * 
+   * @return a `Some` containing the default value or `None` if not specified
    */
   def default: Option[A]
 
   /**
-   * The option processor.
+   * Returns the option processor.
+   * 
+   * @return the option processor
    */
   def processor: OptProcessor[A]
 
   /**
+   * Returns the canonical name.
+   * 
+   * @return the canonical name, which is [[lname]], if defined, otherwise [[sname]] converted to a string
+   */
+  val name: String = lname.getOrElse(sname.get.toString)
+
+  /**
    * Returns a new option with a default value.
    * 
+   * @tparam B the value type
    * @param default the default value
    * @return a new option with `default` as the default value
    */
   def ~~[B >: A](default: B): Opt[B]
 
   /**
-   * Returns a map in which the given value is associated with both [[lname long]] and [[sname short]] names, if applicable.
+   * Returns a copy of the option value map in which the given value is associated with both [[lname long]] and [[sname short]]
+   * names, where applicable.
    * 
    * @tparam B the value type
    * @param value the value
-   * @return a map in which `value` is associated with both [[lname long]] and [[sname short]] names
+   * @param optv the current option value map
+   * @return a new option value map in which `value` is associated with both [[lname long]] and [[sname short]] names
    */
-  def set[B >: A](value: B): Map[String, B]
+  def set[B >: A](value: B, optv: Map[String, Any]): Map[String, Any]
+}
+
+private class ReplacingOpt[+A](
+      val lname: Option[String],
+      val sname: Option[Char],
+      val default: Option[A],
+      val processor: OptProcessor[A]) extends Opt[A] {
+  def ~~[B >: A](default: B): Opt[B] = new ReplacingOpt(lname, sname, Some(default), processor)
+
+  def set[B >: A](value: B, optv: Map[String, Any]): Map[String, Any] = {
+    optv ++ (lname map { n => (n -> value) }) ++ (sname map { n => (n.toString -> value) })
+  }
+}
+
+private class AppendingOpt[+A](
+      val lname: Option[String],
+      val sname: Option[Char],
+      val default: Option[A],
+      val processor: OptProcessor[A]) extends Opt[A] {
+  def ~~[B >: A](default: B): Opt[B] = new AppendingOpt(lname, sname, Some(default), processor)
+
+  def set[B >: A](value: B, optv: Map[String, Any]): Map[String, Any] = {
+    val vs = (optv.get(name) map { _.asInstanceOf[Seq[B]] } getOrElse Seq.empty[B]) :+ value
+    optv ++ (lname map { n => (n -> vs) }) ++ (sname map { n => (n.toString -> vs) })
+  }
 }
 
 /**
  * Constructs [[Opt]] values.
- * 
- * In normal circumstances, option definitions are implicitly created using [[scalop DSL syntax]].
  */
 object Opt {
-  def apply[A](lname: Option[String], sname: Option[Char], default: Option[A], fn: OptProcessor[A]): Opt[A] = {
-    if (lname.isDefined || sname.isDefined)
-      new Impl(lname, sname, default, fn)
-    else
-      throw new IllegalArgumentException("(lname, sname): at least one must be defined")
+  /**
+   * Returns an empty sequence of options.
+   */
+  val empty: Seq[Opt[_]] = Seq.empty
+
+  private[scalop] def replacing[A](lname: Option[String], sname: Option[Char], default: Option[A],
+        fn: OptProcessor[A]): Opt[A] = {
+    new ReplacingOpt(lname, sname, default, fn)
   }
 
-  private class Impl[+A](
-        val lname: Option[String],
-        val sname: Option[Char],
-        val default: Option[A],
-        val processor: OptProcessor[A]) extends Opt[A] {
-    def ~~[B >: A](default: B): Opt[B] = new Impl(lname, sname, Some(default), processor)
-
-    def set[B >: A](value: B): Map[String,B] =
-      Map[String, B]() ++ (lname map { n => (n -> value) }) ++ (sname map { n => (n.toString -> value) })
+  private[scalop] def appending[A](lname: Option[String], sname: Option[Char], default: Option[A],
+        fn: OptProcessor[A]): Opt[A] = {
+    new AppendingOpt(lname, sname, default, fn)
   }
 }

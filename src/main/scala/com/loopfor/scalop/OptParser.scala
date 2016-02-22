@@ -29,94 +29,97 @@ trait OptParser {
   def opts: Seq[Opt[_]]
 
   /**
-   * Returns a new parser by concatenating the given option.
-   * 
-   * @param next the option to concatenate
-   * @return a new parser by concatenating `next` to [[opts]]
-   */
-  def ++(next: Opt[_]): OptParser
-
-  /**
    * Parses the given argument sequence and returns a map of option names to option values.
    * 
    * '''Example'''
    * {{{
-   * val parser = ("timeout", 't') ~> asInt ~~ 0
-   * val opts = parser parse Seq("--timeout", "10", "foo", "bar")
+   * val opts = ("timeout", 't') ~> as[Int] ~~ 0
+   * val optr = opts <~ Seq("--timeout", "10", "foo", "bar")
    * 
-   * // can fetch value using either long or short form
-   * val timeout = opts[Int]("timeout")
-   * val timeout = opts[Int]("t")
+   * // fetch value using either long or short form
+   * val timeout = optr[Int]("timeout")
+   * val timeout = optr[Int]("t")
    * 
    * // get arguments following last option: ("foo", "bar")
-   * val rest = opts.args
+   * val rest = optr.args
    * }}}
    * 
    * @param args the argument sequence
    * @return the parse result containing the option value map
+   * 
+   * @throws OptException if an error occurred during parsing
    */
-  def parse(args: Seq[String]): OptResult
+  def <~(args: Seq[String]): OptResult
 }
 
-/**
- * Constructs [[OptParser]] values.
- * 
- * In normal circumstances, parser instances are created implicitly using [[scalop DSL syntax]].
- */
-object OptParser {
-  def apply(opts: Seq[Opt[_]]): OptParser = new Impl(opts)
+private class BasicOptParser(val opts: Seq[Opt[_]]) extends OptParser {
+  def <~(args: Seq[String]): OptResult = parse(args)
 
-  private class Impl(val opts: Seq[Opt[_]]) extends OptParser {
-    def ++(next: Opt[_]): OptParser = new Impl(opts :+ next)
-
-    def parse(args: Seq[String]): OptResult = {
-      val results = (Map[String, Any]() /: opts) { case (r, opt) =>
-        opt.default map { opt set _ } map { r ++ _ } getOrElse r
-      } + ("@" -> Seq[String]())
-      OptResult(parse(args, results))
-    }
-
-    @tailrec private def parse(args: Seq[String], results: Map[String, Any]): Map[String, Any] = {
-      if (args.isEmpty) results
-      else {
-        val arg = args.head
-        val rest = args.tail
-
-        def process(opt: Opt[_]) = {
-          val (next, value) = try opt.processor(rest, results) catch {
-            case e: OptException => throw new OptException(arg + ": " + e.getMessage, e.getCause)
-            case e: Exception => throw new OptException(arg + ": error parsing option", e)
-          }
-          (next, results ++ (opt set value))
-        }
-
-        arg match {
-          case "--" => results + ("@" -> rest.toSeq)
-          case LongName(name) =>
-            opts find { _.lname.getOrElse(None) == name } match {
-              case Some(opt) =>
-                val (r, s) = process(opt)
-                parse(r, s)
-              case None => throw new OptException(arg + ": no such option")
-            }
-          case ShortName(name) =>
-            opts find { _.sname.getOrElse(None) == name } match {
-              case Some(opt) =>
-                val (r, s) = process(opt)
-                parse(r, s)
-              case None => throw new OptException(arg + ": no such option")
-            }
-          case _ => results + ("@" -> args.toSeq)
+  private def parse(args: Seq[String]): OptResult = {
+    val optv = parse(args, Map("@" -> Seq.empty[String]))
+    OptResult {
+      opts.foldLeft(optv) { case (vs, opt) =>
+        vs.get(opt.name) match {
+          case None => opt.default map { opt.set(_, vs) } getOrElse vs
+          case _ => vs
         }
       }
     }
   }
 
+  @tailrec private def parse(args: Seq[String], optv: Map[String, Any]): Map[String, Any] = {
+    if (args.isEmpty) optv
+    else {
+      val arg = args.head
+      val rest = args.tail
+
+      def process(opt: Opt[_]) = {
+        val (next, value) = try opt.processor(rest) catch {
+          case e: OptException => throw new OptException(s"$arg: ${e.getMessage}", e.getCause)
+          case e: Exception => throw new OptException(s"$arg: error parsing option", e)
+        }
+        (next, opt.set(value, optv))
+      }
+
+      arg match {
+        case "--" => optv + ("@" -> rest.toSeq)
+        case LongName(name) =>
+          opts find { _.lname.getOrElse(None) == name } match {
+            case Some(opt) =>
+              val (r, s) = process(opt)
+              parse(r, s)
+            case None => throw new OptException(s"$arg: no such option")
+          }
+        case ShortName(name) =>
+          opts find { _.sname.getOrElse(None) == name } match {
+            case Some(opt) =>
+              val (r, s) = process(opt)
+              parse(r, s)
+            case None => throw new OptException(s"$arg: no such option")
+          }
+        case _ => optv + ("@" -> args.toSeq)
+      }
+    }
+  }
+
   private object LongName {
-    def unapply(arg: String): Option[String] = if (longPrefix(arg)) Some(arg drop 2) else None
+    def unapply(arg: String): Option[String] = if (dashdash(arg)) Some(arg drop 2) else None
   }
 
   private object ShortName {
-    def unapply(arg: String): Option[Char] = if (shortPrefix(arg) && arg.length == 2) Some(arg(1)) else None
+    def unapply(arg: String): Option[Char] = if (dash(arg) && arg.length == 2) Some(arg(1)) else None
   }
+}
+
+/**
+ * Constructs [[OptParser]] values.
+ */
+object OptParser {
+  /**
+   * Creates an option parser using the sequence of options.
+   * 
+   * @param opts a sequence of options
+   * @return an option parser
+   */
+  def apply(opts: Seq[Opt[_]]): OptParser = new BasicOptParser(opts)
 }

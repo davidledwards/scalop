@@ -1,6 +1,8 @@
 # Overview
 Yet another option parser for Scala, but this one is incredibly simple and rich enough in features to satisfy most needs.
 
+The project page with links to documentation can be found at <http://loopfor.com/scalop>.
+
 ### Define
 ```scala
 val opts = ("help", '?') ~> just(true) ~~ false ::

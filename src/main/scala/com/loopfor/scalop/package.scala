@@ -353,7 +353,7 @@ package object scalop {
    */
   def as[A, B](fn: A => B)(implicit converter: ArgConverter[A]): OptProcessor[B] = {
     args => args.headOption match {
-      case Some(arg) if !dashes(arg) => converter(arg) match {
+      case Some(arg) if !dashes(arg) => converter(escape(arg)) match {
         case Right(a) => (args.tail, fn(a))
         case Left(msg) => yell(s"$arg: $msg")
       }
@@ -391,7 +391,7 @@ package object scalop {
     args => args.headOption match {
       case Some(arg) =>
         if (dashes(arg)) (args, None)
-        else converter(arg) match {
+        else converter(escape(arg)) match {
           case Right(a) => (args.tail, Some(fn(a)))
           case Left(msg) => yell(s"$arg: $msg")
         }
@@ -508,5 +508,7 @@ package object scalop {
 
   private[scalop] def dashdash(arg: String) = arg startsWith "--"
   private[scalop] def dash(arg: String) = arg startsWith "-"
+  private[scalop] def backslash(arg: String) = arg startsWith """\"""
   private[scalop] def dashes(arg: String) = dash(arg) || dashdash(arg)
+  private[scalop] def escape(arg: String) = if (backslash(arg)) arg drop 1 else arg
 }

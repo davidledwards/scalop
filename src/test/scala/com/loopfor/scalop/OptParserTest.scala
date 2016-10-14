@@ -75,6 +75,35 @@ class OptParserTest extends FunSuite {
     }
   }
 
+  test("parsing recognized options with values") {
+    val tests = Seq(
+      (("foo", 'f') ~> as[String], "hello"),
+      ("bar" ~> as[String], "-hello"),
+      ("huh" ~> maybe[String], Some("""\-hello""")))
+
+    val args = Seq(
+      (Seq("--foo","hello", "--bar", """\-hello""", "--huh", """\\-hello"""), Seq()),
+      (Seq("--foo","hello", "--bar", "\\-hello", "--huh", "\\\\-hello"), Seq()))
+
+    val opts = tests map { _._1 }
+    for ((a, etc) <- args) {
+      val r = opts <~ a
+      for ((o, v) <- tests) {
+        (o.lname, o.sname) match {
+          case (Some(l), Some(s)) =>
+            assert(r.optv(l) === v)
+            assert(r.optv(s.toString) === v)
+          case (Some(l), None) =>
+            assert(r.optv(l) === v)
+          case (None, Some(s)) =>
+            assert(r.optv(s.toString) === v)
+          case (None, None) => fail()
+        }
+      }
+      assert(r.args === etc)
+    }
+  }
+
   test("parsing unrecognized options") {
     val opts =
       ("foo", 'f') ~> just(0) ::

@@ -164,6 +164,21 @@ import scala.language._
  * Finally, default values for each option are assigned to the option value map if values for those corresponding options are
  * absent.
  * 
+ * In cases where values, which follow an option, contain either a `-` or `--` prefix, such values must be escaped by
+ * prepending the `\` character. Otherwise, the parser will interpret the value as an option and proceed accordingly.
+ *
+ * The following example will parse incorrectly since `-10` will be interpreted as an option.
+ *
+ * {{{
+ * --time-adjust -10
+ * }}}
+ *
+ * The correct way to specify this value is as follows:
+ *
+ * {{{
+ * --time-adjust \-10
+ * }}}
+ *
  * ====Option Processors====
  * An [[OptProcessor option processor]] is a function accepting as input:
  *  - the sequence of arguments that follow an option name
@@ -343,7 +358,7 @@ package object scalop {
    * 
    * '''Example'''
    * {{{
-   * val opts = ("timeout", 't') ~> as { (arg: Int, _) => arg.seconds } ~~ 60.seconds
+   * val opts = ("timeout", 't') ~> as { arg: Int => arg.seconds } ~~ 60.seconds
    * }}}
    * 
    * @tparam A The type of the argument.
@@ -353,10 +368,12 @@ package object scalop {
    */
   def as[A, B](fn: A => B)(implicit converter: ArgConverter[A]): OptProcessor[B] = {
     args => args.headOption match {
-      case Some(arg) if !dashes(arg) => converter(arg) match {
-        case Right(a) => (args.tail, fn(a))
-        case Left(msg) => yell(s"$arg: $msg")
-      }
+      case Some(arg) if !dashes(arg) =>
+        val _arg = unescape(arg)
+        converter(_arg) match {
+          case Right(a) => (args.tail, fn(a))
+          case Left(msg) => yell(s"${_arg}: $msg")
+        }
       case _ => yell("missing argument")
     }
   }
@@ -391,9 +408,12 @@ package object scalop {
     args => args.headOption match {
       case Some(arg) =>
         if (dashes(arg)) (args, None)
-        else converter(arg) match {
-          case Right(a) => (args.tail, Some(fn(a)))
-          case Left(msg) => yell(s"$arg: $msg")
+        else {
+          val _arg = unescape(arg)
+          converter(_arg) match {
+            case Right(a) => (args.tail, Some(fn(a)))
+            case Left(msg) => yell(s"${_arg}: $msg")
+          }
         }
       case _ => (args, None)
     }
@@ -509,4 +529,5 @@ package object scalop {
   private[scalop] def dashdash(arg: String) = arg startsWith "--"
   private[scalop] def dash(arg: String) = arg startsWith "-"
   private[scalop] def dashes(arg: String) = dash(arg) || dashdash(arg)
+  private[scalop] def unescape(arg: String) = if (arg startsWith "\\") arg drop 1 else arg
 }

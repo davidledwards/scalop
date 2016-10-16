@@ -38,10 +38,10 @@ val y = optr[Option[Int]]("Y") getOrElse { Random.nextInt() }
 ```
 
 ## Documentation
-API documentation can be found [here](http://www.loopfor.com/scalop/api/2.0/index.html).
+API documentation can be found [here](http://www.loopfor.com/scalop/api/2.1/index.html).
 
 ## Dependency Information
-This library is published in the Maven Central Repository. Dependency information can be found [here](http://search.maven.org/#artifactdetails%7Ccom.loopfor.scalop%7Cscalop_2.11%7C2.0%7Cjar).
+This library is published in the Maven Central Repository. Dependency information can be found [here](http://search.maven.org/#artifactdetails%7Ccom.loopfor.scalop%7Cscalop_2.11%7C2.1%7Cjar).
 
 ## License
 Copyright 2013 David Edwards

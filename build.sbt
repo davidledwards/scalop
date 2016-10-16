@@ -18,7 +18,7 @@ lazy val dependencySettings = Seq(
 lazy val docSettings = Seq(
   scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
   autoAPIMappings := true,
-  apiURL := Some(url("http://www.loopfor.com/scalop/api/2.0/"))
+  apiURL := Some(url("http://www.loopfor.com/scalop/api/2.1/"))
 )
 
 lazy val publishSettings = Seq(
@@ -52,7 +52,7 @@ lazy val rootProject = (project in file(".")).
   settings(
     name := "scalop",
     organization := "com.loopfor.scalop",
-    version := "2.0",
+    version := "2.1",
     description := "Scala option parser",
     homepage := Some(url("https://github.com/davidledwards/scalop")),
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),

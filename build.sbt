@@ -1,7 +1,7 @@
 lazy val compilerSettings = Seq(
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.12.2",
   scalacOptions ++= Seq(
-    "-target:jvm-1.6",
+    "-target:jvm-1.8",
     "-deprecation",
     "-unchecked",
     "-feature",
@@ -11,14 +11,14 @@ lazy val compilerSettings = Seq(
 
 lazy val dependencySettings = Seq(
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   )
 )
 
 lazy val docSettings = Seq(
   scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
   autoAPIMappings := true,
-  apiURL := Some(url("http://www.loopfor.com/scalop/api/2.1/"))
+  apiURL := Some(url("http://www.loopfor.com/scalop/api/2.2/"))
 )
 
 lazy val publishSettings = Seq(
@@ -44,7 +44,7 @@ lazy val publishSettings = Seq(
 lazy val eclipseSettings = {
   import EclipseKeys._
   Seq(
-    executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
+    executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE18)
   )
 }
 
@@ -52,7 +52,7 @@ lazy val rootProject = (project in file(".")).
   settings(
     name := "scalop",
     organization := "com.loopfor.scalop",
-    version := "2.1",
+    version := "2.2",
     description := "Scala option parser",
     homepage := Some(url("https://github.com/davidledwards/scalop")),
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),

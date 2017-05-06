@@ -5,13 +5,27 @@ The project page with links to documentation can be found at <http://loopfor.com
 
 ### Define
 ```scala
-val opts = ("help", '?') ~> just(true) ~~ false ::
-           ("host", 'h') ~> as[String] ::
-           ("port", 'p') ~> as[Int] ~~ 7777 ::
-           ("timeout", 't') ~> as { arg: Long => Math.max(arg, 0).seconds } ~~ Duration.Inf ::
-           'X' ~> maybe[Int] ~~ Some(0) ::
-           'Y' ~> maybe[Int] ~~ Some(0) ::
-           Nil
+val opts =
+  // no argument, type is Boolean, sets value to true if --help or -? detected, default value is false
+  ("help", '?') ~> just(true) ~~ false ::
+
+  // single argument, type is String, no default value
+  ("host", 'h') ~> as[String] ::
+
+  // single argument, type is Int, default value is 7777
+  ("port", 'p') ~> as[Int] ~~ 7777 ::
+
+  // single argument, type is Duration, default value is Duration.Inf
+  ("timeout", 't') ~> as { arg: Long => Math.max(arg, 0).seconds } ~~ Duration.Inf ::
+
+  // optional single argument, type is Option[Int], value is None if -X not followed by argument,
+  // otherwise default value is Some(0)
+  'X' ~> maybe[Int] ~~ Some(0) ::
+
+  // single argument, type is Seq[File], multiple appearances of --file or -f append argument to
+  // sequence, default value is empty sequence
+  ("file", 'f') ~>+ as[File] ~~ Seq.empty ::
+  Nil
 ```
 
 ### Parse
@@ -26,22 +40,26 @@ def main(args: Array[String]): Unit = {
 
 ### Read
 ```scala
-val help = optr[Boolean]("help")
+val help: Boolean = optr("help")
 
-val host = optr.get[String]("host") getOrElse "localhost"
-val port = optr[Int]("port")
+val host: String = optr.get("host") getOrElse "localhost"
+
+val port: Int = optr("port")
 
 val timeout: Duration = optr("timeout")
 
 val x = optr[Option[Int]]("X") getOrElse { Random.nextInt() }
-val y = optr[Option[Int]]("Y") getOrElse { Random.nextInt() }
+
+val files: Seq[File] = optr("file")
 ```
 
 ## Documentation
-API documentation can be found [here](http://www.loopfor.com/scalop/api/2.1/index.html).
+API documentation can be found [here](http://www.loopfor.com/scalop/api/2.2/com/loopfor/scalop/index.html).
 
 ## Dependency Information
-This library is published in the Maven Central Repository. Dependency information can be found [here](http://search.maven.org/#artifactdetails%7Ccom.loopfor.scalop%7Cscalop_2.11%7C2.1%7Cjar).
+This library is published in the Maven Central Repository. Dependency information can be found [here](http://search.maven.org/#artifactdetails%7Ccom.loopfor.scalop%7Cscalop_2.12%7C2.2%7Cjar).
+
+This release is compiled against _Scala 2.12_, which by extension, depends on _Java 1.8_.
 
 ## License
 Copyright 2013 David Edwards

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ private class ReplacingOpt[+A](
   def ~~[B >: A](default: B): Opt[B] = new ReplacingOpt(lname, sname, Some(default), processor)
 
   def set[B >: A](value: B, optv: Map[String, Any]): Map[String, Any] = {
-    optv ++ (lname map { n => (n -> value) }) ++ (sname map { n => (n.toString -> value) })
+    optv ++ (lname.map { n => (n -> value) }) ++ (sname.map { n => (n.toString -> value) })
   }
 }
 
@@ -102,8 +102,8 @@ private class AppendingOpt[+A](
   def ~~[B >: A](default: B): Opt[B] = new AppendingOpt(lname, sname, Some(default), processor)
 
   def set[B >: A](value: B, optv: Map[String, Any]): Map[String, Any] = {
-    val vs = (optv.get(name) map { _.asInstanceOf[Seq[B]] } getOrElse Seq.empty[B]) :+ value
-    optv ++ (lname map { n => (n -> vs) }) ++ (sname map { n => (n.toString -> vs) })
+    val vs = (optv.get(name).map { _.asInstanceOf[Seq[B]] } getOrElse Seq.empty[B]) :+ value
+    optv ++ (lname.map { n => (n -> vs) }) ++ (sname.map { n => (n.toString -> vs) })
   }
 }
 

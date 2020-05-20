@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.loopfor.scalop
 import java.io.File
 import java.net.{URI, URL}
 import java.nio.charset.Charset
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import scala.language.implicitConversions
 
-class OptProcessorTest extends FunSuite {
+class OptProcessorTest extends AnyFunSuite {
   test("implicit construction of parser by chaining options and processors") {
     val opts =
       ("verbose", 'v') ~> just(true) ~~ false ::
@@ -30,7 +30,7 @@ class OptProcessorTest extends FunSuite {
 
     val parser: OptParser = opts
     assert(parser.opts.size === opts.size)
-    for ((a, b) <- parser.opts zip opts) {
+    for ((a, b) <- parser.opts.zip(opts)) {
       assert(a.lname === b.lname)
       assert(a.sname === b.sname)
       assert(a.name === b.name)
@@ -337,7 +337,7 @@ class OptProcessorTest extends FunSuite {
 
     val args = Seq(
           (Seq(), Charset forName "UTF-8"),
-          (Seq("--foo", "iso-8859-1"), Charset forName "iso-8859-1"))
+          (Seq("--foo", "iso-8859-1"), Charset.forName("iso-8859-1")))
 
     for ((a, v) <- args) {
       val r = opts <~ a
@@ -350,7 +350,7 @@ class OptProcessorTest extends FunSuite {
 
     val args = Seq(
           (Seq(), None),
-          (Seq("--foo", "iso-8859-1"), Some(Charset forName "iso-8859-1")))
+          (Seq("--foo", "iso-8859-1"), Some(Charset.forName("iso-8859-1"))))
 
     for ((a, v) <- args) {
       val r = opts <~ a

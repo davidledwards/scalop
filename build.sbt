@@ -1,7 +1,7 @@
 lazy val compilerSettings = Seq(
-  scalaVersion := "2.12.2",
+  scalaVersion := "2.13.2",
   scalacOptions ++= Seq(
-    "-target:jvm-1.8",
+    "-target:11",
     "-deprecation",
     "-unchecked",
     "-feature",
@@ -11,14 +11,14 @@ lazy val compilerSettings = Seq(
 
 lazy val dependencySettings = Seq(
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+    "org.scalatest" %% "scalatest" % "3.1.2" % "test"
   )
 )
 
 lazy val docSettings = Seq(
-  scalacOptions in (Compile, doc) ++= Seq("-no-link-warnings"),
+  Compile / doc / scalacOptions ++= Seq("-no-link-warnings"),
   autoAPIMappings := true,
-  apiURL := Some(url("http://www.loopfor.com/scalop/api/2.2/"))
+  apiURL := Some(url(s"https://davidedwards.io/scalop/api/${version.value}/"))
 )
 
 lazy val publishSettings = Seq(
@@ -32,7 +32,7 @@ lazy val publishSettings = Seq(
       </developer>
     </developers>,
   publishMavenStyle := true,
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   publishTo := Some(
     if (version.value endsWith "SNAPSHOT")
       "Sonatype Nexus Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -44,7 +44,7 @@ lazy val publishSettings = Seq(
 lazy val eclipseSettings = {
   import EclipseKeys._
   Seq(
-    executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE18)
+    executionEnvironment := Some(EclipseExecutionEnvironment.JRE11)
   )
 }
 
@@ -52,7 +52,7 @@ lazy val rootProject = (project in file(".")).
   settings(
     name := "scalop",
     organization := "com.loopfor.scalop",
-    version := "2.2",
+    version := "2.3",
     description := "Scala option parser",
     homepage := Some(url("https://github.com/davidledwards/scalop")),
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),

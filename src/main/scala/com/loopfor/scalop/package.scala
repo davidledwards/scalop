@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -523,11 +523,11 @@ package object scalop {
   implicit val argToURLOption = liftToOption(argToURL)
 
   private def liftToOption[A](fn: ArgConverter[A]): ArgConverter[Option[A]] = {
-    arg => fn(arg).right map { Some(_) }
+    arg => fn(arg).map { Some(_) }
   }
 
-  private[scalop] def dashdash(arg: String) = arg startsWith "--"
-  private[scalop] def dash(arg: String) = arg startsWith "-"
+  private[scalop] def dashdash(arg: String) = arg.startsWith("--")
+  private[scalop] def dash(arg: String) = arg.startsWith("-")
   private[scalop] def dashes(arg: String) = dash(arg) || dashdash(arg)
-  private[scalop] def unescape(arg: String) = if (arg startsWith "\\") arg drop 1 else arg
+  private[scalop] def unescape(arg: String) = if (arg.startsWith("\\")) arg.drop(1) else arg
 }

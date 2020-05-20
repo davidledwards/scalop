@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ trait OptResult {
 private class BasicOptResult(val optv: Map[String, Any]) extends OptResult {
   def apply[A](name: String): A = optv(name).asInstanceOf[A]
 
-  def get[A](name: String): Option[A] = optv.get(name) map { _.asInstanceOf[A] }
+  def get[A](name: String): Option[A] = optv.get(name).map { _.asInstanceOf[A] }
 
   def args: Seq[String] = optv("@").asInstanceOf[Seq[String]]
 }

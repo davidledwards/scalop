@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ private class BasicOptParser(val opts: Seq[Opt[_]]) extends OptParser {
     OptResult {
       opts.foldLeft(optv) { case (vs, opt) =>
         vs.get(opt.name) match {
-          case None => opt.default map { opt.set(_, vs) } getOrElse vs
+          case None => opt.default.map { opt.set(_, vs) } getOrElse vs
           case _ => vs
         }
       }
@@ -84,14 +84,14 @@ private class BasicOptParser(val opts: Seq[Opt[_]]) extends OptParser {
       arg match {
         case "--" => optv + ("@" -> rest.toSeq)
         case LongName(name) =>
-          opts find { _.lname.getOrElse(None) == name } match {
+          opts.find { _.lname.getOrElse(None) == name } match {
             case Some(opt) =>
               val (r, s) = process(opt)
               parse(r, s)
             case None => throw new OptException(s"$arg: no such option")
           }
         case ShortName(name) =>
-          opts find { _.sname.getOrElse(None) == name } match {
+          opts.find { _.sname.getOrElse(None) == name } match {
             case Some(opt) =>
               val (r, s) = process(opt)
               parse(r, s)
@@ -103,7 +103,7 @@ private class BasicOptParser(val opts: Seq[Opt[_]]) extends OptParser {
   }
 
   private object LongName {
-    def unapply(arg: String): Option[String] = if (dashdash(arg)) Some(arg drop 2) else None
+    def unapply(arg: String): Option[String] = if (dashdash(arg)) Some(arg.drop(2)) else None
   }
 
   private object ShortName {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 David Edwards
+ * Copyright 2020 David Edwards
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.loopfor.scalop
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class OptTest extends FunSuite {
+class OptTest extends AnyFunSuite {
   test("implicit construction of option") {
     val tests = Seq(
           (Some("foo"), Some('f'), "foo"),

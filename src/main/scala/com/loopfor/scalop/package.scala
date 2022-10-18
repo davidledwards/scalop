@@ -19,7 +19,7 @@ import java.io.File
 import java.net.{URI, URL, MalformedURLException, URISyntaxException}
 import java.nio.charset.Charset
 import scala.annotation.tailrec
-import scala.language._
+import scala.language.implicitConversions
 
 /**
  * A simple option parser.
@@ -330,15 +330,15 @@ package object scalop {
   /*
    * Implicits that lift various simple types into an option name.
    */
-  implicit def stringToOptName(lname: String) = OptName(lname)
-  implicit def charToOptName(sname: Char) = OptName(sname)
-  implicit def tupleToOptName(name: (String, Char)) = OptName(name._1, name._2)
+  implicit def stringToOptName(lname: String): OptName = OptName(lname)
+  implicit def charToOptName(sname: Char): OptName = OptName(sname)
+  implicit def tupleToOptName(name: (String, Char)): OptName = OptName(name._1, name._2)
 
   /*
    * Implicits that lift options into an option parser.
    */
-  implicit def optToOptParser(opt: Opt[_]) = OptParser(Seq(opt))
-  implicit def optsToOptParser(opts: Seq[Opt[_]]) = OptParser(opts)
+  implicit def optToOptParser(opt: Opt[_]): OptParser = OptParser(Seq(opt))
+  implicit def optsToOptParser(opts: Seq[Opt[_]]): OptParser = OptParser(opts)
 
   /**
    * Returns a [[OptProcessor processor]] whose value does not depend on additional arguments.
@@ -389,7 +389,7 @@ package object scalop {
    * @tparam A The value type of the processor.
    * @param converter An implicit function that converts an argument to type `A`.
    */
-  def as[A](implicit converter: ArgConverter[A]): OptProcessor[A] = as { arg: A => arg }
+  def as[A](implicit converter: ArgConverter[A]): OptProcessor[A] = as { (arg: A) => arg }
 
   /**
    * Returns a [[OptProcessor processor]] that transforms an optional argument.
@@ -430,7 +430,7 @@ package object scalop {
    * @tparam A The value type of the processor.
    * @param converter An implicit function that converts an argument to type `A`.
    */
-  def maybe[A](implicit converter: ArgConverter[A]): OptProcessor[Option[A]] = maybe { arg: A => arg }
+  def maybe[A](implicit converter: ArgConverter[A]): OptProcessor[Option[A]] = maybe { (arg: A) => arg }
 
   /**
    * A convenience method that throws [[OptException]].
@@ -509,18 +509,18 @@ package object scalop {
     }
   }
 
-  implicit val argToBooleanOption = liftToOption(argToBoolean)
-  implicit def argToByteOption = liftToOption(argToByte)
-  implicit def argToShortOption = liftToOption(argToShort)
-  implicit def argToIntOption = liftToOption(argToInt)
-  implicit def argToLongOption = liftToOption(argToLong)
-  implicit def argToFloatOption = liftToOption(argToFloat)
-  implicit def argToDoubleOption = liftToOption(argToDouble)
-  implicit def argToStringOption = liftToOption(argToString)
-  implicit val argToCharsetOption = liftToOption(argToCharset)
-  implicit val argToFileOption = liftToOption(argToFile)
-  implicit val argToURIOption = liftToOption(argToURI)
-  implicit val argToURLOption = liftToOption(argToURL)
+  implicit val argToBooleanOption: ArgConverter[Option[Boolean]] = liftToOption(argToBoolean)
+  implicit def argToByteOption: ArgConverter[Option[Byte]] = liftToOption(argToByte)
+  implicit def argToShortOption: ArgConverter[Option[Short]] = liftToOption(argToShort)
+  implicit def argToIntOption: ArgConverter[Option[Int]] = liftToOption(argToInt)
+  implicit def argToLongOption: ArgConverter[Option[Long]] = liftToOption(argToLong)
+  implicit def argToFloatOption: ArgConverter[Option[Float]] = liftToOption(argToFloat)
+  implicit def argToDoubleOption: ArgConverter[Option[Double]] = liftToOption(argToDouble)
+  implicit def argToStringOption: ArgConverter[Option[String]] = liftToOption(argToString)
+  implicit val argToCharsetOption: ArgConverter[Option[Charset]] = liftToOption(argToCharset)
+  implicit val argToFileOption: ArgConverter[Option[File]] = liftToOption(argToFile)
+  implicit val argToURIOption: ArgConverter[Option[URI]] = liftToOption(argToURI)
+  implicit val argToURLOption: ArgConverter[Option[URL]] = liftToOption(argToURL)
 
   private def liftToOption[A](fn: ArgConverter[A]): ArgConverter[Option[A]] = {
     arg => fn(arg).map { Some(_) }

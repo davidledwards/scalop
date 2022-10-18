@@ -1,7 +1,28 @@
+/*
+ * Copyright 2020 David Edwards
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+lazy val scala213 = "2.13.10"
+lazy val scala31 = "3.1.3"
+lazy val supportedScalaVersions = List(scala213, scala31)
+
 lazy val compilerSettings = Seq(
-  scalaVersion := "2.13.2",
+  scalaVersion := scala213,
+  crossScalaVersions := supportedScalaVersions,
   scalacOptions ++= Seq(
-    "-target:11",
+    "-release:11",
     "-deprecation",
     "-unchecked",
     "-feature",
@@ -11,7 +32,7 @@ lazy val compilerSettings = Seq(
 
 lazy val dependencySettings = Seq(
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % "3.1.2" % "test"
+    "org.scalatest" %% "scalatest" % "3.2.13" % "test"
   )
 )
 
@@ -41,18 +62,11 @@ lazy val publishSettings = Seq(
   )
 )
 
-lazy val eclipseSettings = {
-  import EclipseKeys._
-  Seq(
-    executionEnvironment := Some(EclipseExecutionEnvironment.JRE11)
-  )
-}
-
 lazy val rootProject = (project in file(".")).
   settings(
     name := "scalop",
     organization := "com.loopfor.scalop",
-    version := "2.3",
+    version := "2.3.1",
     description := "Scala option parser",
     homepage := Some(url("https://github.com/davidledwards/scalop")),
     licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -65,5 +79,4 @@ lazy val rootProject = (project in file(".")).
   settings(compilerSettings: _*).
   settings(dependencySettings: _*).
   settings(docSettings: _*).
-  settings(publishSettings: _*).
-  settings(eclipseSettings: _*)
+  settings(publishSettings: _*)

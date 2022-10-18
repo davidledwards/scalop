@@ -1,6 +1,18 @@
-.cache*
-.classpath
+# MacOS files.
+.DS_Store
+
+# Eclipse files.
 .project
+.metadata
+.cache
+.classpath
+.loadpath
 .settings/
+
+# Visual Studio Code files.
+.vscode/
+
+# SBT files.
+.bsp/
 target/
-bin/
+project/project/

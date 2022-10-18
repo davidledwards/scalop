@@ -84,7 +84,7 @@ class OptProcessorTest extends AnyFunSuite {
   }
 
   test("use of `as` for constructing processor with function") {
-    val opts = "foo" ~> as { arg: Int => "@" * arg } ~~ ""
+    val opts = "foo" ~> as { (arg: Int) => "@" * arg } ~~ ""
 
     val args = Seq(
           (Seq(), ""),
@@ -111,7 +111,7 @@ class OptProcessorTest extends AnyFunSuite {
   }
 
   test("use of `maybe` for constructing processor with function") {
-    val opts = "foo" ~> maybe { arg: Int => arg.toString } ~~ Some("")
+    val opts = "foo" ~> maybe { (arg: Int) => arg.toString } ~~ Some("")
 
     val args = Seq(
           (Seq(), Some("")),

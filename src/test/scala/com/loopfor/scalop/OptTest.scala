@@ -106,8 +106,8 @@ class OptTest extends AnyFunSuite {
 
     for ((args, v) <- tests) {
       val optv = opt <~ args
-      assert(optv[Int]("foo") === v)
-      assert(optv[Int]("f") === v)
+      assert(optv[List[Int]]("foo") === v)
+      assert(optv[List[Int]]("f") === v)
     }
   }
 

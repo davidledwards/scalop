@@ -63,11 +63,13 @@ val files: Seq[File] = optr("file")
 
 ## Documentation
 
-API documentation can be found [here](https://davidedwards.io/scalop/api/2.3/com/loopfor/scalop/index.html).
+API documentation can be found [here](https://davidedwards.io/scalop/api/2.3.1/com/loopfor/scalop/index.html).
 
 ## Dependency Information
 
-This library is published in the Maven Central Repository. Dependency information can be found [here](https://search.maven.org/artifact/com.loopfor.scalop/scalop_2.13/2.3/jar).
+This library is published in the Maven Central Repository.
+* [Scala 2.13](https://search.maven.org/artifact/com.loopfor.scalop/scalop_2.13/2.3.1/jar)
+* [Scala 3](https://search.maven.org/artifact/com.loopfor.scalop/scalop_3/2.3.1/jar)
 
 ## License
 

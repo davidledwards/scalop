@@ -1,1 +1,1 @@
-This GitHub Pages site is best viewed at <http://www.loopfor.com/scalop/>.
+This GitHub Pages site is best viewed at <https://davidedwards.io/scalop/>.
